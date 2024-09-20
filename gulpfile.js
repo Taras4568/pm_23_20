@@ -10,14 +10,14 @@ const { src, dest, watch, series, parallel } = gulp;
 const sass = gulpSass(dartSass);
 const browserSync = browsersync.create();
 
-// Таск для HTML
+
 function htmlTask() {
     return src('app/html/*.html')
         .pipe(dest('dist'))
         .pipe(browserSync.stream());
 }
 
-// Таск для SCSS
+
 function scssTask() {
     return src('app/scss/style.scss')
         .pipe(sass({ outputStyle: 'compressed' }).on('error', sass.logError))
@@ -25,7 +25,7 @@ function scssTask() {
         .pipe(browserSync.stream());
 }
 
-// Таск для JS
+
 function jsTask() {
     return src('app/js/*.js')
         .pipe(concat('script.js'))
@@ -34,7 +34,7 @@ function jsTask() {
         .pipe(browserSync.stream());
 }
 
-// Таск для зображень
+
 function imgTask() {
     return src('app/img/*')
         .pipe(imagemin())
@@ -42,7 +42,7 @@ function imgTask() {
         .pipe(browserSync.stream());
 }
 
-// Налаштування BrowserSync
+
 function browserSyncServe(cb) {
     browserSync.init({
         server: {
