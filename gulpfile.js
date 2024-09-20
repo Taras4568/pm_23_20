@@ -1,71 +1,74 @@
-const gulp = require('gulp');
-const sass = require('gulp-sass')(require('sass'));
-const concat = require('gulp-concat');
-const uglify = require('gulp-uglify');
-const browserSync = require('browser-sync').create();
+import gulp from 'gulp';
+import dartSass from 'sass';
+import gulpSass from 'gulp-sass';
+import concat from 'gulp-concat';
+import uglify from 'gulp-uglify';
+import imagemin from 'gulp-imagemin';
+import browsersync from 'browser-sync';
 
+const { src, dest, watch, series, parallel } = gulp;
+const sass = gulpSass(dartSass);
+const browserSync = browsersync.create();
 
-async function loadImagemin() {
-  return (await import('gulp-imagemin')).default;
-}
-
-const paths = {
-  html: 'app/**/*.html',
-  scss: 'app/scss/**/*.scss',
-  js: 'app/js/**/*.js',
-  img: 'app/img/**/*',
-};
-
+// Таск для HTML
 function htmlTask() {
-  return gulp.src(paths.html)
-      .pipe(gulp.dest('dist'))
-      .pipe(browserSync.stream());
+    return src('app/html/*.html')
+        .pipe(dest('dist'))
+        .pipe(browserSync.stream());
 }
 
+// Таск для SCSS
 function scssTask() {
-  return gulp.src(paths.scss)
-      .pipe(sass({ outputStyle: 'compressed' }).on('error', sass.logError))
-      .pipe(concat('style.min.css'))
-      .pipe(gulp.dest('dist/css'))
-      .pipe(browserSync.stream());
+    return src('app/scss/style.scss')
+        .pipe(sass({ outputStyle: 'compressed' }).on('error', sass.logError))
+        .pipe(dest('dist/css'))
+        .pipe(browserSync.stream());
 }
 
+// Таск для JS
 function jsTask() {
-  return gulp.src(paths.js)
-      .pipe(concat('script.min.js'))
-      .pipe(uglify())
-      .pipe(gulp.dest('dist/js'))
-      .pipe(browserSync.stream());
+    return src('app/js/*.js')
+        .pipe(concat('script.js'))
+        .pipe(uglify())
+        .pipe(dest('dist/js'))
+        .pipe(browserSync.stream());
 }
 
-async function imgTask() {
-  const imagemin = await loadImagemin();
-  return gulp.src(paths.img)
-      .pipe(imagemin())
-      .pipe(gulp.dest('dist/imgs'));
+// Таск для зображень
+function imgTask() {
+    return src('app/img/*')
+        .pipe(imagemin())
+        .pipe(dest('dist/imgs'))
+        .pipe(browserSync.stream());
 }
 
-function serve() {
-  browserSync.init({
-    server: {
-      baseDir: 'dist',
-    },
-  });
+// Налаштування BrowserSync
+function browserSyncServe(cb) {
+    browserSync.init({
+        server: {
+            baseDir: 'dist'
+        }
+    });
+    cb();
+}
 
-  gulp.watch(paths.html, htmlTask);
-  gulp.watch(paths.scss, scssTask);
-  gulp.watch(paths.js, jsTask);
-  gulp.watch(paths.img, imgTask);
+function browserSyncReload(cb) {
+    browserSync.reload();
+    cb();
 }
 
 
-exports.htmlTask = htmlTask;
-exports.scssTask = scssTask;
-exports.jsTask = jsTask;
-exports.imgTask = imgTask;
-exports.serve = serve;
+function watchTask() {
+    watch('app/html/*.html', htmlTask);
+    watch('app/scss/*.scss', scssTask);
+    watch('app/js/*.js', jsTask);
+    watch('app/img/*', imgTask);
+    watch('dist/*.html', browserSyncReload);
+}
 
-exports.default = gulp.series(
-  gulp.parallel(htmlTask, scssTask, jsTask, imgTask),
-  serve
+
+export default series(
+    parallel(htmlTask, scssTask, jsTask, imgTask),
+    browserSyncServe,
+    watchTask
 );
