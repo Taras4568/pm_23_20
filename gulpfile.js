@@ -1,74 +1,83 @@
 import gulp from 'gulp';
-import dartSass from 'sass';
-import gulpSass from 'gulp-sass';
+import cssnano from 'gulp-cssnano';
+import autoprefixer from 'gulp-autoprefixer';
+import inject from 'gulp-inject';
+import imagemin from 'gulp-imagemin';
 import concat from 'gulp-concat';
 import uglify from 'gulp-uglify';
-import imagemin from 'gulp-imagemin';
-import browsersync from 'browser-sync';
+import rename from 'gulp-rename';
+import browserSync from 'browser-sync';
+import * as sass from 'sass';
+import gulpSass from 'gulp-sass';
 
-const { src, dest, watch, series, parallel } = gulp;
-const sass = gulpSass(dartSass);
-const browserSync = browsersync.create();
+import copy from 'gulp-copy';
+
+const sassCompiler = gulpSass(sass);
 
 
-function htmlTask() {
-    return src('app/html/*.html')
-        .pipe(dest('dist'))
+gulp.task('html', function () {
+    const sources = gulp.src(['dist/image/*'], { read: false });
+    return gulp.src('app/*.html')
+        .pipe(inject(sources, { ignorePath: 'dist', addRootSlash: false }))
+        .pipe(gulp.dest('dist'))
         .pipe(browserSync.stream());
-}
+});
 
 
-function scssTask() {
-    return src('app/scss/style.scss')
-        .pipe(sass({ outputStyle: 'compressed' }).on('error', sass.logError))
-        .pipe(dest('dist/css'))
-        .pipe(browserSync.stream());
-}
+gulp.task('scss', function () {
+    return gulp.src('app/scss/*.scss')
+        .pipe(sassCompiler().on('error', sassCompiler.logError))
+        .pipe(autoprefixer({
+            overrideBrowserslist: ['last 2 versions'],
+            cascade: false
+        }))
+        .pipe(cssnano()) 
+        .pipe(rename({suffix: '.min'})) 
+        .pipe(gulp.dest('dist/css')) 
+        .pipe(browserSync.stream()); 
+});
+gulp.task('bootstrap', function () {
+    return gulp.src([
+        'node_modules/bootstrap/dist/css/bootstrap.min.css',
+        'node_modules/bootstrap/dist/js/bootstrap.bundle.min.js'
+    ], { base: 'node_modules/bootstrap/dist', allowEmpty: true })
+        .pipe(gulp.dest('dist')); 
+});
 
 
-function jsTask() {
-    return src('app/js/*.js')
-        .pipe(concat('script.js'))
+
+gulp.task('scripts', function () {
+    return gulp.src('app/js/*.js')
+        .pipe(concat('scripts.js'))
         .pipe(uglify())
-        .pipe(dest('dist/js'))
-        .pipe(browserSync.stream());
-}
+        .pipe(rename({suffix: '.min'})) 
+        .pipe(gulp.dest('dist/js')) 
+        .pipe(browserSync.stream()); 
+});
 
 
-function imgTask() {
-    return src('app/img/*')
-        .pipe(imagemin())
-        .pipe(dest('dist/imgs'))
-        .pipe(browserSync.stream());
-}
+gulp.task('images', function () {
+    return gulp.src ( "app/img/*.+(jpg|jpeg|png|gif)", { encoding: false })
+        .pipe(imagemin({
+            progressive: true,
+            svgoPlugins: [{removeViewBox: false}],
+            interlaced: true
+        }))
+        .pipe(gulp.dest('dist/image'))
+});
 
 
-function browserSyncServe(cb) {
+gulp.task('watch', function () {
     browserSync.init({
         server: {
             baseDir: 'dist'
-        }
+        },
     });
-    cb();
-}
-
-function browserSyncReload(cb) {
-    browserSync.reload();
-    cb();
-}
+    gulp.watch('app/*.html', gulp.series('html')).on('change', browserSync.reload); 
+    gulp.watch('app/scss/*.scss', gulp.series('scss')); 
+    gulp.watch('app/js/*.js', gulp.series('scripts'));
+    gulp.watch('app/image/*.+(jpg|jpeg|png|gif)', gulp.series('images')); 
+});
 
 
-function watchTask() {
-    watch('app/html/*.html', htmlTask);
-    watch('app/scss/*.scss', scssTask);
-    watch('app/js/*.js', jsTask);
-    watch('app/img/*', imgTask);
-    watch('dist/*.html', browserSyncReload);
-}
-
-
-export default series(
-    parallel(htmlTask, scssTask, jsTask, imgTask),
-    browserSyncServe,
-    watchTask
-);
+gulp.task('default', gulp.series('html','bootstrap', 'scss', 'scripts', 'images', 'watch'));
