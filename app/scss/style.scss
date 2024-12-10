@@ -1,3 +1,5 @@
+@import 'variables';
+@import 'mixins';
 body {
     font-family: 'Montserrat', sans-serif;
     background-color: #f4f4f9;
@@ -581,6 +583,45 @@ p.contact-me {
     display: inline-block;
     cursor: pointer;
 }
+
+.circles-container-left{
+    display: flex;
+    justify-content: left; 
+    gap: 10px; 
+    margin-top: 20px; 
+}
+
+.circles-container-right{
+    display: flex;
+    justify-content: right; 
+    gap: 10px; 
+    margin-top: 20px; 
+}
+
+#circle-one {
+    @include circle($circle-radius-small, $circle-radius-small, $circle-color-dark);
+    @include border-radius(50%, 50%, 0%, 0%);
+    @include margin($margin-negative-small, $margin-negative-large);
+}
+
+#circle-two {
+    @include circle($circle-radius-large, 150px, $circle-color-light);
+    @include border-radius(100%, 50%, 0, 0);
+    @include margin($margin-top-adjust, -130px);
+}
+
+#circle-three {
+    @include circle($circle-radius-small, $circle-radius-small, $circle-color-dark);
+    @include border-radius(0%, 50%, 0%, 50%);
+    @include margin(-220px, $margin-large);
+}
+
+#circle-four {
+    @include circle($circle-radius-large, 160px, $circle-color-light);
+    @include border-radius(50%, 100%, 0, 0);
+    @include margin(-120px, 1200px);
+}
+
 
 
 

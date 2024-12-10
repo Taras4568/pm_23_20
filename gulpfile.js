@@ -14,16 +14,16 @@ import copy from 'gulp-copy';
 
 const sassCompiler = gulpSass(sass);
 
-// Обробка HTML
+
 gulp.task('html', function () {
     const sources = gulp.src(['dist/image/*'], { read: false });
     return gulp.src('app/*.html')
-        .pipe(inject(sources, { ignorePath: 'dist', addRootSlash: false })) // Додавання шляху до зображень
+        .pipe(inject(sources, { ignorePath: 'dist', addRootSlash: false })) 
         .pipe(gulp.dest('dist'))
         .pipe(browserSync.stream());
 });
 
-// Обробка SCSS
+
 gulp.task('scss', function () {
     return gulp.src('app/scss/*.scss')
         .pipe(sassCompiler().on('error', sassCompiler.logError))
@@ -31,31 +31,31 @@ gulp.task('scss', function () {
             overrideBrowserslist: ['last 2 versions'],
             cascade: false
         }))
-        .pipe(cssnano()) // Мінімізація CSS
-        .pipe(rename({suffix: '.min'})) // Додавання суфіксу .min до CSS
-        .pipe(gulp.dest('dist/css')) // Збереження у dist
-        .pipe(browserSync.stream()); // Оновлення браузера
+        .pipe(cssnano()) 
+        .pipe(rename({suffix: '.min'})) 
+        .pipe(gulp.dest('dist/css')) 
+        .pipe(browserSync.stream()); 
 });
 gulp.task('bootstrap', function () {
     return gulp.src([
         'node_modules/bootstrap/dist/css/bootstrap.min.css',
         'node_modules/bootstrap/dist/js/bootstrap.bundle.min.js'
-    ], { base: 'node_modules/bootstrap/dist', allowEmpty: true }) // базовий шлях для коректного збереження в dist
-        .pipe(gulp.dest('dist')); // Копіювання у dist
+    ], { base: 'node_modules/bootstrap/dist', allowEmpty: true }) 
+        .pipe(gulp.dest('dist')); 
 });
 
 
-// Об'єднання і мінімізація скриптів
+
 gulp.task('scripts', function () {
     return gulp.src('app/js/*.js')
         .pipe(concat('scripts.js'))
         .pipe(uglify())
-        .pipe(rename({suffix: '.min'})) // Додавання суфіксу .min до JS
-        .pipe(gulp.dest('dist/js')) // Збереження у dist
+        .pipe(rename({suffix: '.min'})) 
+        .pipe(gulp.dest('dist/js')) 
         .pipe(browserSync.stream()); // Оновлення браузера
 });
 
-// Оптимізація зображень
+
 gulp.task('images', function () {
     return gulp.src ( "app/img/*.+(jpg|jpeg|png|gif)", { encoding: false })
         .pipe(imagemin({

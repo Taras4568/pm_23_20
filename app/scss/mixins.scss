@@ -1,0 +1,19 @@
+
+@mixin circle($width, $height, $color) {
+    width: $width;
+    height: $height;
+    background-color: $color;
+    position: relative; 
+}
+
+@mixin border-radius($top-right: 0, $top-left: 0, $bottom-right: 0, $bottom-left: 0) {
+    border-top-right-radius: $top-right;
+    border-top-left-radius: $top-left;
+    border-bottom-right-radius: $bottom-right;
+    border-bottom-left-radius: $bottom-left;
+}
+
+@mixin margin($top, $left) {
+    margin-top: $top;
+    margin-left: $left;
+}
