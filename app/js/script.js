@@ -70,40 +70,30 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-async function checkServer() { 
-    try { 
-        const response = await fetch('http://localhost:4000/data', { method: 'HEAD' }); 
-        return response.ok; 
-    } catch(error) { 
-        console.error('Error fetching the server:', error); 
-        return false; 
-    } 
-  } 
-   
-  document.addEventListener('DOMContentLoaded', function() { 
-    fetch('http://localhost:4000/data') 
-        .then(response => response.json()) 
-        .then(data => { 
-            console.log(data) 
-            const jobListContainer = document.getElementById('jobList'); 
-            const jobListHTML = data.jobList.map(edu => ` 
-                       <li> 
-                          <span class="h_content">${edu.position}</span> 
-                          <h4>${edu.company} <span class="date">${edu.years}</span></h4> 
-                          <p>${edu.description}</p> 
-                      </li> 
-            `).join(''); 
-            jobListContainer.innerHTML = jobListHTML; 
-             
-            const educationContainer = document.getElementById('educationList'); 
-            const educationHTML = data.education.map(edu => ` 
-                       <li> 
-                          <span class="h_content_ed">${edu.degree}</span> 
-                          <h4><span class="date">${edu.years}</span> ${edu.institution}</h4> 
-                          <p>${edu.description}</p> 
-                      </li> 
-            `).join(''); 
-            educationContainer.innerHTML = educationHTML; 
-            }) 
-            .catch(error => console.error('Error fetching JSON :) :', error)); 
-  });
+document.addEventListener('DOMContentLoaded', function() {
+  fetch('http://localhost:4000/data')
+      .then(response => response.json())
+      .then(data => {
+          console.log(data)
+          const jobListContainer = document.getElementById('jobList');
+          const jobListHTML = data.jobList.map(edu => `
+                     <li>
+                        <span class="h_content">${edu.position}</span>
+                        <h4>${edu.company} <span class="date">${edu.years}</span></h4>
+                        <p>${edu.description}</p>
+                    </li>
+          `).join('');
+          jobListContainer.innerHTML = jobListHTML;
+          
+          const educationContainer = document.getElementById('educationList');
+          const educationHTML = data.education.map(edu => `
+                     <li>
+                        <span class="h_content_ed">${edu.degree}</span>
+                        <h4><span class="date">${edu.years}</span> ${edu.institution}</h4>
+                        <p>${edu.description}</p>
+                    </li>
+          `).join('');
+          educationContainer.innerHTML = educationHTML;
+          })
+          .catch(error => console.error('Error fetching JSON :) :', error));
+});
